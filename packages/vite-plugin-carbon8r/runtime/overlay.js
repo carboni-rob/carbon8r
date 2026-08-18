@@ -4,6 +4,7 @@ const CONFIG = __CARBON8R_CONFIG__
 
 let active = false
 let current = null
+let pointed = null
 
 const host = document.createElement('div')
 host.setAttribute('data-carbon8r-overlay', '')
@@ -103,6 +104,39 @@ function placeLayer(el, left, top, width, height, ring) {
   })
 }
 
+// Document-level listeners see events from inside shadow trees retargeted to
+// the shadow host — the real element only appears in composedPath(). These
+// resolvers walk the composed path so apps rendered inside (open) shadow
+// roots work; for light-DOM pages the path is just target + ancestors, so
+// the behavior is identical to closest().
+function elementFromEvent(e) {
+  const path = e.composedPath ? e.composedPath() : []
+  if (path[0] instanceof Element) return path[0]
+  return e.target instanceof Element ? e.target : null
+}
+
+function instrumentedFromEvent(e) {
+  const path = e.composedPath ? e.composedPath() : []
+  for (const node of path) {
+    if (node instanceof Element && node.hasAttribute('data-carbon8r')) return node
+  }
+  const target = e.target instanceof Element ? e.target : null
+  return target ? target.closest('[data-carbon8r]') : null
+}
+
+// display:contents wrappers and unstyled custom-element hosts have no box of
+// their own; walk toward the root (hopping shadow boundaries) for one.
+function renderedBox(el) {
+  let node = el
+  while (node instanceof Element) {
+    const r = node.getBoundingClientRect()
+    if (r.width || r.height) return node
+    const root = node.getRootNode()
+    node = node.parentElement ?? (root instanceof ShadowRoot ? root.host : null)
+  }
+  return el
+}
+
 function describe(el) {
   let s = el.tagName.toLowerCase()
   if (el.id) s += '#' + el.id
@@ -113,8 +147,13 @@ function describe(el) {
 
 function position() {
   if (!current || !current.isConnected) return clearTarget()
-  const rect = current.getBoundingClientRect()
-  const cs = getComputedStyle(current)
+  let boxEl = current
+  let rect = current.getBoundingClientRect()
+  if (!rect.width && !rect.height) {
+    boxEl = renderedBox(pointed ?? current)
+    rect = boxEl.getBoundingClientRect()
+  }
+  const cs = getComputedStyle(boxEl)
   const px = (v) => parseFloat(v) || 0
   const sides = (prop, suffix = '') => ({
     top: px(cs[prop + 'Top' + suffix]),
@@ -176,15 +215,17 @@ function position() {
   })
 }
 
-function setTarget(el) {
-  if (el === current) return
+function setTarget(el, hovered = el) {
+  if (el === current && hovered === pointed) return
   current = el
+  pointed = hovered
   if (el) position()
   else clearTarget()
 }
 
 function clearTarget() {
   current = null
+  pointed = null
   for (const name in layers) layers[name].style.display = 'none'
   label.style.display = 'none'
 }
@@ -247,8 +288,8 @@ document.addEventListener(
     if (!syncFromEvent(e)) return
     // Prefer the instrumented ancestor (it carries a source location); fall
     // back to the raw element so the box-model inspector works on any page.
-    const target = e.target instanceof Element ? e.target : null
-    setTarget(target ? (target.closest('[data-carbon8r]') ?? target) : null)
+    const hovered = elementFromEvent(e)
+    setTarget(hovered ? (instrumentedFromEvent(e) ?? hovered) : null, hovered)
   },
   { capture: true, passive: true }
 )
@@ -272,11 +313,11 @@ for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click', 'auxclick', 
       // Only hijack input over instrumented elements — there a click opens
       // the source. Over anything else the overlay is purely visual, so
       // clicks (and native Alt+click behaviors) pass through untouched.
-      const el = e.target instanceof Element ? e.target.closest('[data-carbon8r]') : null
+      const el = instrumentedFromEvent(e)
       if (!el) return
       e.preventDefault()
       e.stopImmediatePropagation()
-      setTarget(el)
+      setTarget(el, elementFromEvent(e))
       if (type === 'click' || type === 'contextmenu') open(el)
     },
     { capture: true }
@@ -287,6 +328,9 @@ for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click', 'auxclick', 
 window.__CARBON8R__ = {
   version: CONFIG.version ?? 'unknown',
   config: CONFIG,
+  get element() {
+    return current
+  },
   activate,
   deactivate,
   hrefFor,

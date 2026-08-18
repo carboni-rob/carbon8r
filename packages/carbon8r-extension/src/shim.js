@@ -3,7 +3,7 @@
 // vite-plugin-carbon8r wrapped in globalThis.__carbon8rRun. The overlay reads
 // __CARBON8R_CONFIG__, which the Vite plugin normally injects by string
 // replacement; here we define it as a global and fill it from settings.
-globalThis.__CARBON8R_CONFIG__ = { root: '', template: null, quiet: true, version: 'extension-0.2.1' }
+globalThis.__CARBON8R_CONFIG__ = { root: '', template: null, quiet: true, version: 'extension-0.2.2' }
 
 chrome.storage.sync.get(
   { enabled: true, editor: 'auto', customTemplate: '', root: '' },
