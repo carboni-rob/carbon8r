@@ -4,6 +4,13 @@
   "description": "Option/Alt-click any element in the browser to open its source in your editor. Works with React 19 (no reliance on _debugSource).",
   "license": "MIT",
   "author": "Roberto Carboni <robcarbon@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carboni-rob/carbon8r.git",
+    "directory": "packages/vite-plugin-carbon8r"
+  },
+  "homepage": "https://github.com/carboni-rob/carbon8r#readme",
+  "bugs": "https://github.com/carboni-rob/carbon8r/issues",
   "keywords": [
     "vite-plugin",
     "react",
