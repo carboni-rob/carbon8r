@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "carbon8r — React 19 jump to source",
+  "version": "0.2.0",
+  "description": "Hold Option/Alt to inspect any page's box model. On apps instrumented with vite-plugin-carbon8r, click to open the source in your editor.",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

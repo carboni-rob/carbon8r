@@ -1,0 +1,35 @@
+{
+  "name": "vite-plugin-carbon8r",
+  "version": "0.1.0",
+  "description": "Option/Alt-click any element in the browser to open its source in your editor. Works with React 19 (no reliance on _debugSource).",
+  "license": "MIT",
+  "author": "Roberto Carboni <robcarbon@gmail.com>",
+  "keywords": [
+    "vite-plugin",
+    "react",
+    "react-19",
+    "jump-to-source",
+    "click-to-source",
+    "open-in-editor",
+    "devtools",
+    "dx"
+  ],
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "runtime",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "vite": ">=5"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.29.8",
+    "launch-editor": "^2.14.1",
+    "magic-string": "^1.2.0"
+  }
+}

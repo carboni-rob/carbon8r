@@ -1,0 +1,67 @@
+<!doctype html>
+<meta charset="utf-8" />
+<style>
+  body {
+    font: 13px/1.5 system-ui, sans-serif;
+    width: 280px;
+    margin: 0;
+    padding: 14px;
+  }
+  label {
+    display: block;
+    margin: 12px 0 4px;
+    font-weight: 600;
+  }
+  select,
+  input[type='text'] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px 6px;
+  }
+  .toggle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .toggle label {
+    margin: 0;
+  }
+  .hint {
+    color: #666;
+    font-size: 11px;
+    margin: 12px 0 0;
+  }
+  #custom-row,
+  #root-row {
+    display: none;
+  }
+</style>
+<div class="toggle">
+  <input type="checkbox" id="enabled" />
+  <label for="enabled">Enabled</label>
+</div>
+<label for="editor">Open files with</label>
+<select id="editor">
+  <option value="auto">Auto (app's carbon8r dev server)</option>
+  <option value="vscode">VS Code</option>
+  <option value="vscode-insiders">VS Code Insiders</option>
+  <option value="cursor">Cursor</option>
+  <option value="windsurf">Windsurf</option>
+  <option value="zed">Zed</option>
+  <option value="custom">Custom URL template…</option>
+</select>
+<div id="custom-row">
+  <label for="template">URL template</label>
+  <input type="text" id="template" placeholder="myeditor://open?file={file}&amp;line={line}" />
+</div>
+<div id="root-row">
+  <label for="root">Project root (absolute path)</label>
+  <input type="text" id="root" placeholder="/Users/you/code/my-app" />
+</div>
+<p class="hint">
+  Reload the page after changing settings. "Auto" asks the app's Vite dev
+  server (vite-plugin-carbon8r) to open your editor; protocol editors need the
+  project root to build absolute file paths.
+</p>
+<script src="presets.js"></script>
+<script src="popup.js"></script>
