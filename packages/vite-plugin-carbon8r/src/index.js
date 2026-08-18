@@ -7,6 +7,10 @@ import launch from 'launch-editor'
 const RUNTIME_PUBLIC_ID = '/@carbon8r/runtime'
 const RUNTIME_RESOLVED_ID = '\0' + RUNTIME_PUBLIC_ID
 
+const PKG_VERSION = JSON.parse(
+  fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8')
+).version
+
 const EDITOR_TEMPLATES = {
   vscode: 'vscode://file/{file}:{line}:{column}',
   'vscode-insiders': 'vscode-insiders://file/{file}:{line}:{column}',
@@ -90,7 +94,7 @@ export default function carbon8r(options = {}) {
       const source = fs.readFileSync(runtimePath, 'utf8')
       return source.replace(
         '__CARBON8R_CONFIG__',
-        JSON.stringify({ root, template })
+        JSON.stringify({ root, template, version: PKG_VERSION })
       )
     }
   }

@@ -15,43 +15,48 @@ Object.assign(host.style, {
 })
 const shadow = host.attachShadow({ mode: 'open' })
 
-const style = document.createElement('style')
-style.textContent = `
-  .layer {
-    position: fixed;
-    display: none;
-    box-sizing: border-box;
-    border: 0 solid transparent;
-  }
-  .margin  { border-color: rgba(246, 178, 107, 0.66); }
-  .border  { border-color: rgba(255, 229, 153, 0.66); }
-  .padding { border-color: rgba(147, 196, 125, 0.55); }
-  .content { background: rgba(111, 168, 220, 0.66); }
-  .label {
-    position: fixed;
-    display: none;
-    background: #0f172a;
-    color: #e2e8f0;
-    font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
-    padding: 3px 8px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-    white-space: nowrap;
-    max-width: 70vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .label b { color: #7dd3fc; font-weight: 600; }
-`
+// All overlay styling goes through CSSOM property assignments, never <style>
+// elements or style="" attributes: pages with a strict Content-Security-Policy
+// (style-src without 'unsafe-inline') block those, which used to leave the
+// crosshair working but the overlay invisible. CSSOM is exempt from CSP.
+const LAYER_COLORS = {
+  margin: 'rgba(246, 178, 107, 0.66)',
+  border: 'rgba(255, 229, 153, 0.66)',
+  padding: 'rgba(147, 196, 125, 0.55)',
+  content: 'rgba(111, 168, 220, 0.66)'
+}
 const layers = {}
 for (const name of ['margin', 'border', 'padding', 'content']) {
   const el = document.createElement('div')
   el.className = 'layer ' + name
+  Object.assign(el.style, {
+    position: 'fixed',
+    display: 'none',
+    boxSizing: 'border-box',
+    borderStyle: 'solid',
+    borderWidth: '0',
+    borderColor: name === 'content' ? 'transparent' : LAYER_COLORS[name],
+    background: name === 'content' ? LAYER_COLORS.content : 'transparent'
+  })
   layers[name] = el
 }
 const label = document.createElement('div')
 label.className = 'label'
-shadow.append(style, layers.margin, layers.border, layers.padding, layers.content, label)
+Object.assign(label.style, {
+  position: 'fixed',
+  display: 'none',
+  background: '#0f172a',
+  color: '#e2e8f0',
+  font: '11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace',
+  padding: '3px 8px',
+  borderRadius: '5px',
+  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.35)',
+  whiteSpace: 'nowrap',
+  maxWidth: '70vw',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis'
+})
+shadow.append(layers.margin, layers.border, layers.padding, layers.content, label)
 document.documentElement.appendChild(host)
 
 function parseTarget(el) {
@@ -152,6 +157,7 @@ function position() {
   const info = parseTarget(current)
   label.innerHTML = ''
   const name = document.createElement('b')
+  Object.assign(name.style, { color: '#7dd3fc', fontWeight: '600' })
   if (info) {
     name.textContent = `<${info.component}> `
     label.append(name, `${info.file}:${info.line}:${info.column}`)
@@ -279,6 +285,7 @@ for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click', 'auxclick', 
 
 // Debug/testing handle
 window.__CARBON8R__ = {
+  version: CONFIG.version ?? 'unknown',
   config: CONFIG,
   activate,
   deactivate,

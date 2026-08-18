@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "carbon8r — React 19 jump to source",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Hold Option/Alt to inspect any page's box model. On apps instrumented with vite-plugin-carbon8r, click to open the source in your editor.",
   "permissions": ["storage"],
   "content_scripts": [
