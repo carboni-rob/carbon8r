@@ -14,6 +14,10 @@
   A LocatorJS-style "jump to source" tool that works with <strong>React 19</strong>.
 </p>
 
+<p align="center">
+  <img src="assets/demo.gif" width="720" alt="carbon8r demo — hold Option, hover to inspect the box model, click to open the source in your editor" />
+</p>
+
 Hold <kbd>Option</kbd> (<kbd>Alt</kbd>) in the browser: hovering any element
 highlights its box model with DevTools-style colors — blue content, green
 padding, orange margin — and shows the component name plus `file:line:column`.
