@@ -1,12 +1,25 @@
-# carbon8r
+<p align="center">
+  <img src="assets/icon.png" width="120" alt="carbon8r logo" />
+</p>
 
-A LocatorJS-style "jump to source" tool that works with **React 19**.
+<h1 align="center">carbon8r</h1>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/vite-plugin-carbon8r"><img src="https://img.shields.io/npm/v/vite-plugin-carbon8r?color=2ee6e6&label=npm" alt="npm version" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /></a>
+  <img src="https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white" alt="React 19" />
+</p>
+
+<p align="center">
+  A LocatorJS-style "jump to source" tool that works with <strong>React 19</strong>.
+</p>
 
 Hold <kbd>Option</kbd> (<kbd>Alt</kbd>) in the browser: hovering any element
 highlights its box model with DevTools-style colors — blue content, green
 padding, orange margin — and shows the component name plus `file:line:column`.
 Click while holding the key and the file opens in your editor at that exact
-position.
+position. Elements without source info (component libraries, any web page via
+the extension) still get the box-model inspector.
 
 ## Why this exists
 
@@ -21,6 +34,12 @@ This project takes the robust path instead: inject the source location at
 **build time** as a `data-carbon8r` attribute on every host JSX element. No React
 internals are touched, so it works with React 19 today and whatever React 20
 does tomorrow.
+
+## Install
+
+```sh
+npm install -D vite-plugin-carbon8r
+```
 
 ## Usage
 

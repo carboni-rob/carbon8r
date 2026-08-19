@@ -1,4 +1,11 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/carboni-rob/carbon8r/main/assets/icon.png" width="120" alt="carbon8r logo" />
+</p>
+
 # vite-plugin-carbon8r
+
+[![npm](https://img.shields.io/npm/v/vite-plugin-carbon8r?color=2ee6e6&label=npm)](https://www.npmjs.com/package/vite-plugin-carbon8r)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/carboni-rob/carbon8r/blob/main/LICENSE)
 
 Option/Alt-click any element in the browser to open its source in your editor
 — a jump-to-source tool that works with **React 19**.
@@ -15,6 +22,12 @@ Runtime-only tools (LocatorJS, click-to-component, …) read
 `fiber._debugSource`, which **React 19 removed**. This plugin instead injects
 the source location at build time as a `data-carbon8r` attribute on every host
 JSX element — no React internals involved, so it keeps working.
+
+## Install
+
+```sh
+npm install -D vite-plugin-carbon8r
+```
 
 ## Usage
 
