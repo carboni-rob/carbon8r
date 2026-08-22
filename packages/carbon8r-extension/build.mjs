@@ -9,6 +9,10 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 const dist = path.join(here, 'dist')
 const read = (p) => fs.readFileSync(path.join(here, p), 'utf8')
 
+// package.json is the single source of truth for the version; the shim and
+// the manifest both get stamped from it so they can't drift apart.
+const VERSION = JSON.parse(read('package.json')).version
+
 fs.rmSync(dist, { recursive: true, force: true })
 fs.mkdirSync(dist)
 
@@ -22,14 +26,17 @@ fs.writeFileSync(
   path.join(dist, 'content.js'),
   read('src/presets.js') +
     '\n' +
-    read('src/shim.js') +
+    read('src/shim.js').replace('__CARBON8R_EXT_VERSION__', `extension-${VERSION}`) +
     '\nglobalThis.__carbon8rRun = function () {\n' +
     overlay +
     '\ninstall(globalThis.__CARBON8R_CONFIG__)\n' +
     '}\n'
 )
 fs.writeFileSync(path.join(dist, 'presets.js'), read('src/presets.js'))
-fs.copyFileSync(path.join(here, 'manifest.json'), path.join(dist, 'manifest.json'))
+fs.writeFileSync(
+  path.join(dist, 'manifest.json'),
+  JSON.stringify({ ...JSON.parse(read('manifest.json')), version: VERSION }, null, 2) + '\n'
+)
 fs.copyFileSync(path.join(here, 'src/popup.html'), path.join(dist, 'popup.html'))
 fs.copyFileSync(path.join(here, 'src/popup.js'), path.join(dist, 'popup.js'))
 fs.cpSync(path.join(here, 'icons'), path.join(dist, 'icons'), { recursive: true })
