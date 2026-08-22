@@ -1,6 +1,6 @@
 {
   "name": "next-carbon8r",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Option/Alt-click any element in your Next.js app to open its source in your editor. Works with React 19, App Router, webpack and Turbopack.",
   "license": "MIT",
   "author": "Roberto Carboni <robcarbon@gmail.com>",

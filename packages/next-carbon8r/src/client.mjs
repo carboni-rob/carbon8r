@@ -20,6 +20,11 @@ const OPEN = {
 const HINT =
   'set $EDITOR / $REACT_EDITOR, or pass an `editor` option to withCarbon8r().'
 
+// StrictMode runs mount effects twice, so keep the warning to one per module
+// instance. (Next evaluates this module in more than one client context in
+// dev, so the warning can still appear twice -- better than not at all.)
+let warned = false
+
 /**
  * Mounts the carbon8r overlay. Render once, in the root layout.
  */
@@ -30,7 +35,21 @@ export function Carbon8r() {
     // `if (true) return` and drops the overlay chunk altogether instead of
     // emitting one that is never fetched.
     if (process.env.NODE_ENV === 'production') return
-    if (!RAW_CONFIG) return
+
+    // Mounted, but withCarbon8r() never ran -- so nothing was instrumented and
+    // there is no config to install with. Silence here is the single most
+    // confusing way this can fail, so say so.
+    if (!RAW_CONFIG) {
+      if (warned) return
+      warned = true
+      console.warn(
+        '[carbon8r] <Carbon8r /> is mounted, but withCarbon8r() is not active ' +
+          'in your Next config, so no source locations were injected and the ' +
+          'overlay is disabled. Wrap your config: ' +
+          "`export default withCarbon8r({ /* ... */ })` in next.config.mjs."
+      )
+      return
+    }
 
     let cancelled = false
     import('carbon8r-core/overlay').then(

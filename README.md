@@ -119,6 +119,13 @@ withCarbon8r(nextConfig, { editor: 'cursor' })
 Presets: `vscode`, `vscode-insiders`, `cursor`, `windsurf`, `zed`. Or pass any
 template: `'myeditor://open?file={file}&line={line}&col={column}'`.
 
+On Next you can also pin the server-side editor with `REACT_EDITOR` in
+`.env.local` (restart the dev server afterwards). Two gotchas: Cursor installs
+its CLI as `code` too, so `REACT_EDITOR=code` may open Cursor on a machine with
+both; and the value is split on whitespace, so a path with spaces needs
+backslash escapes — quoting doesn't work. See
+[next-carbon8r → Choosing your editor](packages/next-carbon8r#choosing-your-editor).
+
 ## Try the demo
 
 ```sh

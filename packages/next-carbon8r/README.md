@@ -53,11 +53,65 @@ export default function RootLayout({ children }) {
 }
 ```
 
-That's it — no editor configuration needed. Alt-click hands the file to
-Next's own `/__nextjs_launch-editor` endpoint, the same one its error overlay
-uses, which respects `$EDITOR` / `$REACT_EDITOR`.
+Alt-click hands the file to Next's own `/__nextjs_launch-editor` endpoint —
+the same one its error overlay uses, which respects `$EDITOR` /
+`$REACT_EDITOR`. Usually that just works; if it opens the wrong editor or none
+at all, see [Choosing your editor](#choosing-your-editor).
+
+`<Carbon8r />` must be in the **root** layout. In a nested one it only mounts
+on the routes below it, and the overlay will be missing everywhere else.
 
 For the Pages Router, render `<Carbon8r />` in `pages/_app.jsx` instead.
+
+## Choosing your editor
+
+Next guesses your editor from the running processes. To pin it, add
+`REACT_EDITOR` to `.env.local` and **restart the dev server**:
+
+```sh
+# .env.local
+REACT_EDITOR=code
+```
+
+Two things bite here, both outside carbon8r's control:
+
+**`code` may not be VS Code.** Cursor installs its CLI under the name `code`
+too, so on a machine with both, `REACT_EDITOR=code` can open Cursor. Check
+with `which code`, and point at the real binary if it's been shadowed.
+
+**The value is split on whitespace**, so an absolute path with spaces fails
+with `spawn /Applications/Visual ENOENT`. Escape the spaces — quoting does not
+help, because the quotes are stripped before the split:
+
+```sh
+# .env.local — backslashes required; "..." does NOT work
+REACT_EDITOR=/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin/code
+```
+
+Alternatively, skip the dev server altogether and let the OS route a protocol
+URL, which ignores `$PATH` entirely:
+
+```js
+export default withCarbon8r(nextConfig, { editor: 'vscode' })
+```
+
+## Troubleshooting
+
+**Nothing happens at all — no overlay when holding Alt.** `<Carbon8r />` isn't
+mounting. It must be rendered in the **root** layout, and your config must be
+wrapped in `withCarbon8r()`. Check the browser console: the overlay logs a
+banner on startup, and `<Carbon8r />` warns if the config wrapper is missing.
+`window.__CARBON8R__` is `undefined` when the overlay never installed.
+
+**The overlay appears but Alt-click 404s on `/__carbon8r/open`.** That request
+is the *Vite* plugin's endpoint — this package never sends it. It means the
+[carbon8r browser extension](https://github.com/carboni-rob/carbon8r/tree/main/packages/carbon8r-extension)
+is also running and installed a second overlay. Update it to 0.3.0 or turn it
+off for this site.
+
+**`Could not open <file> in the editor` in the dev server log.** carbon8r's
+half worked — Next received the path and failed to launch the editor. See
+[Choosing your editor](#choosing-your-editor).
 
 ## How it works
 
