@@ -5,7 +5,8 @@
   "type": "module",
   "workspaces": [
     "packages/*",
-    "demo"
+    "demo",
+    "demo-next"
   ],
   "scripts": {
     "dev": "npm run dev -w demo",

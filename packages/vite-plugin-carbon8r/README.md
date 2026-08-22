@@ -76,9 +76,19 @@ carbon8r({
 
 A debug handle is exposed at `window.__CARBON8R__`.
 
-A companion Chrome extension (same overlay, for instrumented apps that don't
-inject the runtime, plus a box-model inspector for any page) lives in the same
-monorepo as `carbon8r-extension`.
+Both pieces come from [`carbon8r-core`](https://www.npmjs.com/package/carbon8r-core), so the Vite and
+Next.js packages and the browser extension all share one transform and one
+overlay.
+
+## Related
+
+- [`next-carbon8r`](https://www.npmjs.com/package/next-carbon8r) — the same workflow for **Next.js**
+  (App Router, Turbopack and webpack).
+- [`carbon8r-core`](https://www.npmjs.com/package/carbon8r-core) — the shared transform and overlay
+  runtime, if you want to build another bundler integration.
+- [`carbon8r-extension`](https://github.com/carboni-rob/carbon8r/tree/main/packages/carbon8r-extension) — companion Chrome
+  extension: the same overlay for instrumented apps that don't inject the
+  runtime, plus a box-model inspector for any page.
 
 ## Acknowledgements
 
