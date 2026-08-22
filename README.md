@@ -42,10 +42,13 @@ does tomorrow.
 ## Install
 
 ```sh
-npm install -D vite-plugin-carbon8r
+npm install -D vite-plugin-carbon8r   # Vite
+npm install -D next-carbon8r          # Next.js
 ```
 
 ## Usage
+
+### Vite
 
 ```js
 // vite.config.js
@@ -61,22 +64,60 @@ export default defineConfig({
 That's the entire setup. The plugin only runs on the dev server (`apply:
 'serve'`) — production builds are completely untouched.
 
-### Options
+### Next.js
 
-By default, clicks are sent to the dev server, which opens your editor with
-[launch-editor](https://github.com/yyx990803/launch-editor) — it auto-detects
-the running editor and respects `$EDITOR` / `$LAUNCH_EDITOR`. No browser
-protocol dialogs involved. To force a specific editor via a protocol URL
-instead:
+Wrap the config, then render the overlay once in your root layout:
 
 ```js
-carbon8r({
-  // Preset: 'vscode', 'vscode-insiders', 'cursor', 'windsurf', 'zed'
-  editor: 'cursor',
-  // ...or any template:
-  editor: 'myeditor://open?file={file}&line={line}&col={column}'
-})
+// next.config.mjs
+import withCarbon8r from 'next-carbon8r'
+
+export default withCarbon8r({})
 ```
+
+```jsx
+// app/layout.jsx
+import { Carbon8r } from 'next-carbon8r/client'
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <Carbon8r />
+      </body>
+    </html>
+  )
+}
+```
+
+Works with Turbopack and webpack, on both server and client components.
+Alt-click reuses Next's own `/__nextjs_launch-editor` endpoint, so there is
+nothing else to configure. See
+[`packages/next-carbon8r`](packages/next-carbon8r) for the full options list.
+
+### Editor options (both packages)
+
+By default clicks are sent to the dev server, which opens your editor
+server-side — Vite via
+[launch-editor](https://github.com/yyx990803/launch-editor) (respects
+`$EDITOR` / `$LAUNCH_EDITOR`), Next via its own built-in launch-editor route
+(respects `$EDITOR` / `$REACT_EDITOR`). No browser protocol dialogs involved.
+
+To force a specific editor via a protocol URL instead — useful when the
+browser and the dev server aren't on the same machine — both accept the same
+`editor` option:
+
+```js
+// Vite
+carbon8r({ editor: 'cursor' })
+
+// Next.js
+withCarbon8r(nextConfig, { editor: 'cursor' })
+```
+
+Presets: `vscode`, `vscode-insiders`, `cursor`, `windsurf`, `zed`. Or pass any
+template: `'myeditor://open?file={file}&line={line}&col={column}'`.
 
 ## Try the demo
 
@@ -86,6 +127,14 @@ npm run dev
 ```
 
 Open http://localhost:5173, hold <kbd>Option</kbd>/<kbd>Alt</kbd>, hover, click.
+
+For the Next.js demo:
+
+```sh
+npm run dev -w demo-next
+```
+
+Open http://localhost:4300 and do the same.
 
 ## Browser extension
 
@@ -108,6 +157,15 @@ opens your editor via launch-editor), an editor preset, or a custom URL
 template. Protocol editors need the project's absolute root path, set in the
 popup. The content script is generated from the plugin's `runtime/overlay.js`
 at build time, so the two stay identical.
+
+## Packages
+
+| Package | What it is |
+| --- | --- |
+| [`carbon8r-core`](packages/carbon8r-core) | The JSX transform and the overlay runtime, shared by everything below. |
+| [`vite-plugin-carbon8r`](packages/vite-plugin-carbon8r) | Vite dev-server plugin. |
+| [`next-carbon8r`](packages/next-carbon8r) | Next.js loader + config wrapper + `<Carbon8r />`. |
+| [`carbon8r-extension`](packages/carbon8r-extension) | Browser extension; inlines the core overlay as its content script. |
 
 ## How it works
 
@@ -149,9 +207,10 @@ A debug handle is exposed at `window.__CARBON8R__`
   whole owner chain (like LocatorJS's component tree popup) would mean walking
   React fibers — doable in React 19 via the `__reactFiber$*` DOM keys, just not
   built yet.
-- **Vite only.** The transform itself is bundler-agnostic; a webpack/Rspack
-  loader or a plain Babel plugin version would be a thin wrapper around
-  `injectLocations()`.
+- **Vite and Next.js.** Other bundlers aren't covered yet, but the transform
+  and the overlay both live in `carbon8r-core`, so an Rspack loader or a plain
+  Babel plugin would be a thin wrapper around `injectLocations()` plus a call
+  to the shared `install()`.
 - **No zero-config browser extension mode.** That's the one thing the original
   LocatorJS extension did that build-time injection can't: work on apps you
   don't control. A React 19 version would parse `fiber._debugStack` and resolve

@@ -1,0 +1,41 @@
+{
+  "name": "carbon8r-core",
+  "version": "1.0.0",
+  "description": "Shared internals for carbon8r: the JSX source-location transform and the click-to-source overlay runtime.",
+  "license": "MIT",
+  "author": "Roberto Carboni <robcarbon@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carboni-rob/carbon8r.git",
+    "directory": "packages/carbon8r-core"
+  },
+  "homepage": "https://github.com/carboni-rob/carbon8r#readme",
+  "bugs": "https://github.com/carboni-rob/carbon8r/issues",
+  "keywords": [
+    "carbon8r",
+    "jump-to-source",
+    "click-to-source",
+    "open-in-editor",
+    "devtools"
+  ],
+  "type": "commonjs",
+  "main": "src/transform.js",
+  "types": "src/transform.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/transform.d.ts",
+      "default": "./src/transform.js"
+    },
+    "./overlay": "./runtime/overlay.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "runtime",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@babel/parser": "^7.29.8",
+    "magic-string": "^0.30.17"
+  }
+}

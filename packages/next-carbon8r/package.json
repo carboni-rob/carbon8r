@@ -1,18 +1,21 @@
 {
-  "name": "vite-plugin-carbon8r",
-  "version": "0.2.0",
-  "description": "Option/Alt-click any element in the browser to open its source in your editor. Works with React 19 (no reliance on _debugSource).",
+  "name": "next-carbon8r",
+  "version": "0.1.0",
+  "description": "Option/Alt-click any element in your Next.js app to open its source in your editor. Works with React 19, App Router, webpack and Turbopack.",
   "license": "MIT",
   "author": "Roberto Carboni <robcarbon@gmail.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/carboni-rob/carbon8r.git",
-    "directory": "packages/vite-plugin-carbon8r"
+    "directory": "packages/next-carbon8r"
   },
   "homepage": "https://github.com/carboni-rob/carbon8r#readme",
   "bugs": "https://github.com/carboni-rob/carbon8r/issues",
   "keywords": [
-    "vite-plugin",
+    "nextjs",
+    "next",
+    "turbopack",
+    "webpack-loader",
     "react",
     "react-19",
     "jump-to-source",
@@ -21,24 +24,32 @@
     "devtools",
     "dx"
   ],
-  "type": "module",
+  "type": "commonjs",
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "exports": {
     ".": {
       "types": "./src/index.d.ts",
       "default": "./src/index.js"
-    }
+    },
+    "./loader": {
+      "default": "./src/loader.js"
+    },
+    "./client": {
+      "types": "./src/client.d.ts",
+      "default": "./src/client.mjs"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "src",
     "LICENSE"
   ],
   "peerDependencies": {
-    "vite": ">=5"
+    "next": ">=14",
+    "react": ">=18"
   },
   "dependencies": {
-    "carbon8r-core": "^1.0.0",
-    "launch-editor": "^2.14.1"
+    "carbon8r-core": "^1.0.0"
   }
 }

@@ -1,0 +1,16 @@
+{
+  "name": "demo-next",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 4300",
+    "dev:webpack": "next dev --webpack --port 4301",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^16.3.2",
+    "next-carbon8r": "*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  }
+}

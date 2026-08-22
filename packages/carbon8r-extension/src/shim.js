@@ -1,8 +1,9 @@
 // carbon8r extension content script — configuration shim.
 // build.mjs concatenates: presets.js + this file + the shared overlay from
-// vite-plugin-carbon8r wrapped in globalThis.__carbon8rRun. The overlay reads
-// __CARBON8R_CONFIG__, which the Vite plugin normally injects by string
-// replacement; here we define it as a global and fill it from settings.
+// carbon8r-core wrapped in globalThis.__carbon8rRun, which calls the overlay's
+// install() with __CARBON8R_CONFIG__. We define that global here and fill it
+// from settings. Leaving `open` unset keeps the overlay's default endpoint,
+// which is the one vite-plugin-carbon8r serves.
 globalThis.__CARBON8R_CONFIG__ = { root: '', template: null, quiet: true, version: 'extension-0.2.2' }
 
 chrome.storage.sync.get(

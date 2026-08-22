@@ -1,7 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { parse } from '@babel/parser'
-import MagicString from 'magic-string'
+import { injectLocations, overlayPath } from 'carbon8r-core'
 import launch from 'launch-editor'
 
 const RUNTIME_PUBLIC_ID = '/@carbon8r/runtime'
@@ -90,99 +89,17 @@ export default function carbon8r(options = {}) {
 
     load(id) {
       if (id !== RUNTIME_RESOLVED_ID) return
-      const runtimePath = new URL('../runtime/overlay.js', import.meta.url)
-      const source = fs.readFileSync(runtimePath, 'utf8')
-      return source.replace(
-        '__CARBON8R_CONFIG__',
-        JSON.stringify({ root, template, version: PKG_VERSION })
-      )
-    }
-  }
-}
-
-function injectLocations(code, file, root) {
-  let ast
-  try {
-    ast = parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
-      errorRecovery: true
-    })
-  } catch {
-    return
-  }
-
-  const rel = path.relative(root, file).split(path.sep).join('/')
-  const s = new MagicString(code)
-  let count = 0
-
-  walk(ast.program, [], (node, ancestors) => {
-    if (node.type !== 'JSXOpeningElement') return
-    const name = node.name
-    // Host elements only (<div>, <button>, ...). Adding data-* props to
-    // components (<Button>) would leak unknown props into their prop objects.
-    if (name.type !== 'JSXIdentifier' || !/^[a-z]/.test(name.name)) return
-
-    const { line, column } = node.loc.start
-    const component = enclosingComponentName(ancestors) || basename(file)
-    s.appendLeft(
-      name.end,
-      ` data-carbon8r="${escapeAttr(rel)}:${line}:${column + 1}"` +
-        ` data-carbon8r-name="${escapeAttr(component)}"`
-    )
-    count++
-  })
-
-  if (!count) return
-  return { code: s.toString(), map: s.generateMap({ hires: true }) }
-}
-
-function walk(node, ancestors, cb) {
-  cb(node, ancestors)
-  ancestors.push(node)
-  for (const key of Object.keys(node)) {
-    if (key === 'loc' || key === 'leadingComments' || key === 'trailingComments') continue
-    const value = node[key]
-    if (Array.isArray(value)) {
-      for (const child of value) {
-        if (child && typeof child.type === 'string') walk(child, ancestors, cb)
+      // The shared runtime exports install(); the virtual module is just its
+      // source with a call appended. It defaults to the /__carbon8r/open
+      // endpoint served above, so no `open` override is needed here.
+      const source = fs.readFileSync(overlayPath, 'utf8')
+      const config = {
+        root,
+        template,
+        version: PKG_VERSION,
+        hint: 'is vite-plugin-carbon8r running here? Otherwise configure an editor protocol.'
       }
-    } else if (value && typeof value.type === 'string') {
-      walk(value, ancestors, cb)
+      return `${source}\ninstall(${JSON.stringify(config)})\n`
     }
   }
-  ancestors.pop()
-}
-
-// Nearest enclosing function that has a resolvable name, e.g.
-// `function App()`, `const Button = () => ...`, `class Foo { render() }`.
-function enclosingComponentName(ancestors) {
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const node = ancestors[i]
-    if (
-      node.type === 'FunctionDeclaration' ||
-      node.type === 'ClassDeclaration' ||
-      node.type === 'ClassExpression'
-    ) {
-      if (node.id?.name) return node.id.name
-    } else if (
-      node.type === 'FunctionExpression' ||
-      node.type === 'ArrowFunctionExpression'
-    ) {
-      if (node.id?.name) return node.id.name
-      const parent = ancestors[i - 1]
-      if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
-        return parent.id.name
-      }
-    }
-  }
-  return null
-}
-
-function basename(file) {
-  return path.basename(file).replace(/\.[^.]+$/, '')
-}
-
-function escapeAttr(value) {
-  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
 }
